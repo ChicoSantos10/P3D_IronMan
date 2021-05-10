@@ -16,6 +16,7 @@
 
 #define WIDTH 800
 #define HEIGHT 600
+#define MSAA_SAMPLES 4
 
 // Functions
 void initialize();
@@ -75,6 +76,9 @@ int main(void) {
 	if (!glfwInit())
 		return -1;
 
+	// Sets the sample for the multi sample anti aliasing
+	glfwWindowHint(GLFW_SAMPLES, MSAA_SAMPLES);
+
 	window = glfwCreateWindow(WIDTH, HEIGHT, "P3D: Iron Man", NULL, NULL);
 
 	if (window == NULL) {
@@ -133,6 +137,9 @@ int main(void) {
 void initialize() {
 	glClearColor(0.25f, 0.6f, 0.15f, 0.0f);
 	glEnable(GL_DEPTH_TEST);
+
+	// Enables the multi sample anti aliasing
+	glEnable(GL_MULTISAMPLE);
 	// Descomentar para ativar o Face Culling
 	//glEnable(GL_CULL_FACE);
 }
