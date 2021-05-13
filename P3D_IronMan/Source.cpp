@@ -14,6 +14,8 @@
 #include <glm/gtc/matrix_transform.hpp> 
 #include <glm/gtc/type_ptr.hpp> 
 
+#include "Camera.h"
+
 #define WIDTH 800
 #define HEIGHT 600
 #define MSAA_SAMPLES 4
@@ -65,7 +67,9 @@ std::vector<glm::vec3> Load3DModel(void) {
 }
 
 // Variables
-GLfloat ZOOM = 10.0f;
+openGL_program::Camera mainCamera(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, -1.0f), float(WIDTH) / float(HEIGHT));
+
+// TODO: Remove them
 GLfloat ANGLE = 0.0f;
 
 int main(void) {
@@ -92,38 +96,23 @@ int main(void) {
 
 	initialize();
 
-	glfwSetScrollCallback(window, 
+	
+
+	glfwSetScrollCallback(window,
 		[](GLFWwindow* window, double xOffset, double yOffset) 
 		{
-			const float percentage = 0.1f;
-
-			// Zoom In
-			if (yOffset == 1) {
-				ZOOM += fabs(ZOOM) * percentage;
-			}
-			// Zoom Out
-			else if (yOffset == -1) {
-				ZOOM -= fabs(ZOOM) * percentage;
-			}
+			mainCamera.Zoom(yOffset);
 		}
 	);
 
-	// TODO: Create camera class later (Projection and look at)
-	glm::mat4 projection = glm::perspective(glm::radians(45.0f), float(WIDTH) / float(HEIGHT), 0.1f, 100.0f);
-
 	while (!glfwWindowShouldClose(window)) {
-		// View
-		glm::mat4 view = glm::lookAt(
-			glm::vec3(0.0f, 0.0f, ZOOM),	// Posi��o da c�mara no mundo
-			glm::vec3(0.0f, 0.0f, -1.0f),	// Dire��o para a qual a c�mara esta apontada
-			glm::vec3(0.0f, 1.0f, 0.0f)		// Vector vertical
-		);
+		
 		// TODO: Model class
 		glm::mat4 model = glm::mat4(1.0f);
 		// Vai efetuando uma rota��o ao objeto (apenas para podermos ver todas as faces desenhadas).
 		model = glm::rotate(model, ANGLE += 0.001f, glm::normalize(glm::vec3(1.0f, 1.0f, 0.0f)));
 		// MVP
-		glm::mat4 mvp = projection * view * model;
+		glm::mat4 mvp = mainCamera.GetProjectionMatrix() * mainCamera.GetViewMatrix() * model;
 
 		display(obj, mvp);
 		glfwSwapBuffers(window);
