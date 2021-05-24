@@ -67,7 +67,7 @@ std::vector<glm::vec3> Load3DModel(void) {
 }
 
 // Variables
-openGL_program::Camera mainCamera(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, -1.0f), float(WIDTH) / float(HEIGHT));
+openGL_program::Camera *mainCamera;
 
 // TODO: Remove them
 GLfloat ANGLE = 0.0f;
@@ -76,6 +76,10 @@ int main(void) {
 	std::vector<glm::vec3> obj = Load3DModel();
 
 	GLFWwindow* window;
+
+	// TODO: pass the model position as target
+	glm::vec3 target(0.0f, 0.0f, -1.0f);
+	mainCamera = new openGL_program::Camera(glm::vec3(0.0f, 0.0f, 0.0f), target, float(WIDTH) / float(HEIGHT));
 
 	if (!glfwInit())
 		return -1;
@@ -96,23 +100,47 @@ int main(void) {
 
 	initialize();
 
-	
-
+	// Callbacks
 	glfwSetScrollCallback(window,
 		[](GLFWwindow* window, double xOffset, double yOffset) 
 		{
-			mainCamera.Zoom(yOffset);
+			mainCamera->Zoom(yOffset);
 		}
 	);
 
+    glm::mat4 translation(1.0f);
+	glm::mat4 rotation(1.0f);
+	glm::mat4 model(1.0f);
+
 	while (!glfwWindowShouldClose(window)) {
 		
-		// TODO: Model class
-		glm::mat4 model = glm::mat4(1.0f);
-		// Vai efetuando uma rota��o ao objeto (apenas para podermos ver todas as faces desenhadas).
-		model = glm::rotate(model, ANGLE += 0.001f, glm::normalize(glm::vec3(1.0f, 1.0f, 0.0f)));
+		//// TODO: Model class 
+		//target += glm::vec3(0.0f, 0.001f, 0.0f);
+		//translation = glm::translate(glm::mat4(1.0f), target);
+		//rotation = glm::rotate(glm::mat4(1.0f), ANGLE += 0.01f, glm::normalize(glm::vec3(1.0f, 1.0f, 0.0f)));
+		//glm::mat4 model = translation * rotation;
+		//// Vai efetuando uma rota��o ao objeto (apenas para podermos ver todas as faces desenhadas).
+		//model = glm::rotate(model, ANGLE += 0.001f, glm::normalize(glm::vec3(1.0f, 1.0f, 0.0f)));
+		//model = glm::translate(model, target);
+
 		// MVP
-		glm::mat4 mvp = mainCamera.GetProjectionMatrix() * mainCamera.GetViewMatrix() * model;
+		glm::mat4 mvp = mainCamera->GetProjectionMatrix() * mainCamera->GetViewMatrix() * model;
+
+		if (glfwGetWindowAttrib(window, GLFW_HOVERED))
+		{
+			float screenCenter = WIDTH * 0.5f;
+			// Areas where the cursor needs to be to rotate
+			const int threshold = WIDTH * 0.2f;
+			const GLfloat MAX_ROTATION = 0.05f;
+			double mouseX, mouseY;
+			glfwGetCursorPos(window, &mouseX, &mouseY);
+
+			if (mouseX < threshold)
+				mainCamera->Rotate((threshold - mouseX) / threshold * MAX_ROTATION);
+			else if (mouseX > WIDTH - threshold)
+				mainCamera->Rotate((WIDTH - threshold - mouseX) / threshold * MAX_ROTATION);
+		}
+		mainCamera->Update();
 
 		display(obj, mvp);
 		glfwSwapBuffers(window);
