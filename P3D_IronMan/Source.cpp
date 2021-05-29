@@ -15,6 +15,7 @@
 #include <glm/gtc/type_ptr.hpp> 
 
 #include "Camera.h"
+#include "Model.h"
 
 #define WIDTH 800
 #define HEIGHT 600
@@ -107,6 +108,8 @@ int main(void) {
 			mainCamera->Zoom(yOffset);
 		}
 	);
+
+	//Model mesh("IronMan.obj");
 
     glm::mat4 translation(1.0f);
 	glm::mat4 rotation(1.0f);
