@@ -94,15 +94,15 @@ Model::Model(const char* fileName) {
                     i = 0; 
             }
         }
-        for (int i = 0; i < tempPositions.size(); i++)
-        {
-            positions.push_back(tempPositions[vertex_position_indicies[i] - 1]);
-            uvs.push_back(tempUvs[vertex_uv_indicies[i] - 1]);
-            normals.push_back(tempNormals[vertex_normal_indicies[i] - 1]);
-            std::cout << i + 1 << ":" << std::endl;
-            std::cout << positions[i].x << positions[i].y << positions[i].z << std::endl;
-            std::cout << uvs[i].x << uvs[i].y << std::endl;
-            std::cout << normals[i].x << normals[i].y << normals[i].z << std::endl;
-        }
+    }
+    for (int i = 0; i < tempPositions.size(); i++)
+    {
+        positions.push_back(tempPositions[vertex_position_indicies[i] - 1]);
+        uvs.push_back(tempUvs[vertex_uv_indicies[i] - 1]);
+        normals.push_back(tempNormals[vertex_normal_indicies[i] - 1]);
+        /*std::cout << i + 1 << ":" << std::endl;
+        std::cout << positions[i].x << positions[i].y << positions[i].z << std::endl;
+        std::cout << uvs[i].x << uvs[i].y << std::endl;
+        std::cout << normals[i].x << normals[i].y << normals[i].z << std::endl;*/
     }
 }

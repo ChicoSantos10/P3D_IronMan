@@ -147,6 +147,12 @@
   <ItemGroup>
     <ClInclude Include="Model.h" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="Iron_Man.mtl" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="Iron_Man_D.tga" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

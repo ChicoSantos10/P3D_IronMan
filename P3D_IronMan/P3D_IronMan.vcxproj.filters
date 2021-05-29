@@ -33,4 +33,14 @@
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
+  <ItemGroup>
+    <None Include="Iron_Man.mtl">
+      <Filter>Resource Files</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="Iron_Man_D.tga">
+      <Filter>Resource Files</Filter>
+    </Image>
+  </ItemGroup>
 </Project>

@@ -109,7 +109,22 @@ int main(void) {
 		}
 	);
 
-	//Model mesh("IronMan.obj");
+	Model mesh("Iron_Man.obj");
+
+	GLuint VAOs[1];
+	glGenVertexArrays(1, VAOs);
+	glBindVertexArray(VAOs[0]);
+
+	GLuint buffers[3];
+	glGenBuffers(3, buffers);
+	glBindBuffer(GL_ARRAY_BUFFER, buffers[0]);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(mesh.positions), &mesh.positions, GL_STATIC_DRAW);
+	glBindBuffer(GL_ARRAY_BUFFER, buffers[1]);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(mesh.uvs), &mesh.uvs, GL_STATIC_DRAW);
+	glBindBuffer(GL_ARRAY_BUFFER, buffers[2]);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(mesh.normals), &mesh.normals, GL_STATIC_DRAW);
+
+
 
     glm::mat4 translation(1.0f);
 	glm::mat4 rotation(1.0f);
@@ -179,19 +194,21 @@ void display(std::vector<glm::vec3> obj, glm::mat4 mvp) {
 	};
 
 	// Desenha quad em modo imediato
-	glBegin(GL_QUADS);
-	/* obj.size() * (obj.front().length()) � o mesmo que (6*4)*3 */
-	/* 6 faces * 4 v�rtices por face * 3 coordenadas por v�rtice */
-	for (int nv = 0; nv < 6 * 4 * 3; nv += 3) {
-		// Uma cor por face
-		glColor3f(colors[nv / (4 * 3)].r, colors[nv / (4 * 3)].g, colors[nv / (4 * 3)].b);
-		glm::vec4 vertex = glm::vec4(vertex_stream[nv], vertex_stream[nv + 1], vertex_stream[nv + 2], 1.0f);
-		// C�lculo das coordenadas de recorte
-		glm::vec4 transformed_vertex = mvp * vertex;
-		// Divis�o de Perspetiva
-		glm::vec4 normalized_vertex = transformed_vertex / transformed_vertex.w;
-		// Desenho do v�rtice
-		glVertex3f(normalized_vertex.x, normalized_vertex.y, normalized_vertex.z);
-	}
-	glEnd();
+	//glBegin(GL_QUADS);
+	///* obj.size() * (obj.front().length()) � o mesmo que (6*4)*3 */
+	///* 6 faces * 4 v�rtices por face * 3 coordenadas por v�rtice */
+	//for (int nv = 0; nv < 6 * 4 * 3; nv += 3) {
+	//	// Uma cor por face
+	//	glColor3f(colors[nv / (4 * 3)].r, colors[nv / (4 * 3)].g, colors[nv / (4 * 3)].b);
+	//	glm::vec4 vertex = glm::vec4(vertex_stream[nv], vertex_stream[nv + 1], vertex_stream[nv + 2], 1.0f);
+	//	// C�lculo das coordenadas de recorte
+	//	glm::vec4 transformed_vertex = mvp * vertex;
+	//	// Divis�o de Perspetiva
+	//	glm::vec4 normalized_vertex = transformed_vertex / transformed_vertex.w;
+	//	// Desenho do v�rtice
+	//	glVertex3f(normalized_vertex.x, normalized_vertex.y, normalized_vertex.z);
+	//}
+	//glEnd();
+
+	glDrawArrays(GL_TRIANGLES, 0, obj.size());
 }
