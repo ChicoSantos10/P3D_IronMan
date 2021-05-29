@@ -1,6 +1,8 @@
 #include "Camera.h"
 #include <iostream>
 
+using namespace openGL_program;
+
 GLfloat rotation = 0;
 
 Camera::Camera(glm::vec3 position, glm::vec3 &target, float aspectRatio) : 
@@ -44,8 +46,8 @@ void Camera::UpdateViewMatrix() {
 	glm::vec3 posAfterZoom = pos_ + glm::vec3(0, 0, zoom_); // TODO: Make it so zoom moves forward based on the camera rotation
 	glm::vec3 direction = *target_ - posAfterZoom;
 	glm::normalize(direction);
-	view_ = glm::lookAt(posAfterZoom, direction + posAfterZoom, glm::vec3(0.0, 1.0, 0.0));
-	view_ = glm::rotate(view_, rotation, glm::vec3(0.0f, 1.0f, 0.0f));
+	view_ = glm::lookAt(posAfterZoom, direction, glm::vec3(0.0, 1.0, 0.0));
+	view_ = glm::rotate(view_, rotation, glm::normalize(glm::vec3(0.0f, 1.0f, 0.0f)));
 	
 	/*using namespace std;
 	cout << posAfterZoom.x << " " << posAfterZoom.y << " " << posAfterZoom.z << endl;
@@ -53,4 +55,8 @@ void Camera::UpdateViewMatrix() {
 	cout << "Target\nX: " << target_->x;
 	cout << " Y: " << target_->y;
 	cout << " Z: " << target_->z << endl;*/
+}
+
+Camera::~Camera() {
+	delete target_;
 }

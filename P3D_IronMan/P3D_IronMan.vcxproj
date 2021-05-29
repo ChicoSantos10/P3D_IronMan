@@ -141,25 +141,7 @@
   <ItemGroup>
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="Camera.h" />
-    <ClCompile Include="Model.cpp" />
     <ClCompile Include="Source.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="Model.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Iron_Man.mtl" />
-  </ItemGroup>
-  <ItemGroup>
-    <Image Include="Iron_Man_D.tga" />
-    <ClCompile Include="Shader.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="Shader.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Color.frag" />
-    <None Include="Deformation.vert" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
