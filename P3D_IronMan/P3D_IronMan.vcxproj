@@ -141,8 +141,18 @@
   <ItemGroup>
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="Camera.h" />
-    <ClCompile Include="Shader.cpp" />
+    <ClCompile Include="Model.cpp" />
     <ClCompile Include="Source.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Model.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Iron_Man.mtl" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="Iron_Man_D.tga" />
+    <ClCompile Include="Shader.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Shader.h" />
