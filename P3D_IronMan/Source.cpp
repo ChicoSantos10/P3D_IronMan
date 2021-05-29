@@ -15,6 +15,7 @@
 #include <glm/gtc/type_ptr.hpp> 
 
 #include "Camera.h"
+#include "Shader.h"
 
 #define WIDTH 800
 #define HEIGHT 600
@@ -67,10 +68,11 @@ std::vector<glm::vec3> Load3DModel(void) {
 }
 
 // Variables
-openGL_program::Camera *mainCamera;
+Camera *mainCamera;
+double deltaTime;
+double prevTime = 0;
 
 // TODO: Remove them
-GLfloat ANGLE = 0.0f;
 
 int main(void) {
 	std::vector<glm::vec3> obj = Load3DModel();
@@ -79,8 +81,8 @@ int main(void) {
 
 	// TODO: pass the model position as target
 	glm::vec3 target(0.0f, 0.0f, -1.0f);
-	mainCamera = new openGL_program::Camera(glm::vec3(0.0f, 0.0f, 0.0f), target, float(WIDTH) / float(HEIGHT));
-
+	mainCamera = new Camera(glm::vec3(0.0f, 0.0f, 0.0f), target, float(WIDTH) / float(HEIGHT));
+	
 	if (!glfwInit())
 		return -1;
 
@@ -123,22 +125,28 @@ int main(void) {
 		//model = glm::rotate(model, ANGLE += 0.001f, glm::normalize(glm::vec3(1.0f, 1.0f, 0.0f)));
 		//model = glm::translate(model, target);
 
+		// Updating delta time
+		double time = glfwGetTime();
+		deltaTime = time - prevTime;
+		prevTime = time;
+
 		// MVP
 		glm::mat4 mvp = mainCamera->GetProjectionMatrix() * mainCamera->GetViewMatrix() * model;
 
+		// Rotation based on mouse position
 		if (glfwGetWindowAttrib(window, GLFW_HOVERED))
 		{
 			float screenCenter = WIDTH * 0.5f;
 			// Areas where the cursor needs to be to rotate
 			const int threshold = WIDTH * 0.2f;
-			const GLfloat MAX_ROTATION = 0.05f;
+			const GLfloat MAX_ROTATION = glm::radians(90.0f) * deltaTime;
 			double mouseX, mouseY;
 			glfwGetCursorPos(window, &mouseX, &mouseY);
 
 			if (mouseX < threshold)
 				mainCamera->Rotate((threshold - mouseX) / threshold * MAX_ROTATION);
-			else if (mouseX > WIDTH - threshold)
-				mainCamera->Rotate((WIDTH - threshold - mouseX) / threshold * MAX_ROTATION);
+			else if (mouseX > WIDTH - (double)threshold)
+				mainCamera->Rotate((WIDTH - (double)threshold - mouseX) / threshold * MAX_ROTATION);
 		}
 		mainCamera->Update();
 
