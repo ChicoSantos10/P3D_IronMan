@@ -33,40 +33,21 @@
     <ClCompile Include="Camera.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
- ModelOBJ
-    <ClCompile Include="Model.cpp">
-
     <ClCompile Include="Shader.cpp">
- Shaders
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
- ModelOBJ
-    <ClInclude Include="Model.h">
-
     <ClInclude Include="Shader.h">
- Shaders
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
- ModelOBJ
-    <None Include="Iron_Man.mtl">
-      <Filter>Resource Files</Filter>
-    </None>
-  </ItemGroup>
-  <ItemGroup>
-    <Image Include="Iron_Man_D.tga">
-      <Filter>Resource Files</Filter>
-    </Image>
-
     <None Include="Deformation.vert">
       <Filter>Shaders\Vertex</Filter>
     </None>
     <None Include="Color.frag">
       <Filter>Shaders\Fragment</Filter>
     </None>
- Shaders
   </ItemGroup>
 </Project>
