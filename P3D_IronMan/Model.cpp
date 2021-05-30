@@ -80,18 +80,17 @@ Model::Model(const char* fileName) {
 
                 // Ignores undesirable characters
                 if (stream.peek() == '/')
-                {
-                    i++;
                     stream.ignore(1, '/');
-                }
-                else if (stream.peek() == ' ')
+
+               /* else if (stream.peek() == ' ')
                 {
                     i++;
                     stream.ignore(1, ' ');
-                }
+                }*/
 
-                if (i > 2)
-                    i = 0; 
+                i++;
+                // Cycle i between 0 and 2
+                i %= 3;
             }
         }
     }
