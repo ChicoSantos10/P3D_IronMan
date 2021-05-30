@@ -1,8 +1,13 @@
 #version 440 core
 
+in vec2 texcoord;
+
+layout(location = 1) uniform sampler2D text;
+
 out vec4 fColor; 
 
 void main()
 {
-	fColor = vec4(0.8f, 0.2f, 0.3f, 1.0f);
+	vec4 color = texture(text, texcoord);
+	fColor = color;
 }

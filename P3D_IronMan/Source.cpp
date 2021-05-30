@@ -150,7 +150,7 @@ int main(void) {
 	glBindVertexArray(VAOs[0]);
 
 	// VBOs
-	glGenBuffers(1, buffers);
+	glGenBuffers(3, buffers);
 
 	// Position buffer
 	glBindBuffer(GL_ARRAY_BUFFER, buffers[0]);
@@ -166,7 +166,7 @@ int main(void) {
 	// Uv buffer
 	glBindBuffer(GL_ARRAY_BUFFER, buffers[1]);
 	glBufferStorage(GL_ARRAY_BUFFER, sizeof(glm::vec2) * mesh.uvs.size(), mesh.uvs.data(), 0);
-	GLint uvId = glGetProgramResourceLocation(program, GL_PROGRAM_INPUT, "texcoord");
+	GLint uvId = glGetProgramResourceLocation(program, GL_PROGRAM_INPUT, "vtexcoord");
 	bindId = 1;
 	glVertexAttribFormat(uvId, 2, GL_FLOAT, GL_FALSE, 0);
 	glVertexAttribBinding(uvId, bindId);
@@ -177,13 +177,17 @@ int main(void) {
 	// Normal buffer
 	glBindBuffer(GL_ARRAY_BUFFER, buffers[2]);
 	glBufferStorage(GL_ARRAY_BUFFER, sizeof(glm::vec3) * mesh.normals.size(), mesh.normals.data(), 0);
-	GLint normalId = glGetProgramResourceLocation(program, GL_PROGRAM_INPUT, "normal");
+	GLint normalId = glGetProgramResourceLocation(program, GL_PROGRAM_INPUT, "vnormal");
 	bindId = 2;
 	glVertexAttribFormat(normalId, 3, GL_FLOAT, GL_FALSE, 0);
 	glVertexAttribBinding(normalId, bindId);
 	glBindVertexBuffer(bindId, buffers[2], 0, sizeof(GLfloat) * 3);
 	//glVertexAttribPointer(normalId, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
 	glEnableVertexAttribArray(normalId);
+
+	// Textures
+	GLint texId = glGetProgramResourceLocation(program, GL_UNIFORM, "text");
+	glProgramUniform1i(program, texId, 0);
 
     glm::mat4 translation(1.0f);
 	glm::mat4 rotation(1.0f);

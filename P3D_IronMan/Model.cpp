@@ -10,6 +10,45 @@
 #include "Model.h"
 #include <GL/glew.h>
 
+static void load_texture(std::string texture) {
+    GLuint textureName;
+    GLint texCount = 0;
+    // Gera um nome de textura
+    glGenTextures(1, &textureName);
+    // Ativa a Unidade de Textura #(0 + texCount)
+    // A Unidade de Textura 0 está ativa por defeito.
+    // Só uma Unidade de Textura está ativa a cada momento.
+    glActiveTexture(GL_TEXTURE0 + texCount);
+    // Vincula um nome de textura ao target GL_TEXTURE_2D da Unidade de Textura ativa.
+    glBindTexture(GL_TEXTURE_2D, textureName);
+    // Define os parâmetros de filtragem (wrapping e ajuste de tamanho) para a textura
+    // que está vinculada ao target GL_TEXTURE_2D da Unidade de Textura ativa.
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);// Leitura/descompressão do ficheiro com imagem de textura
+    int width, height, nChannels;
+    unsigned char* imageData = stbi_load(texture.c_str(), &width, &height, &nChannels, 0);
+    if (imageData) {
+        // Carrega os dados da imagem para o Objeto de Textura vinculado ao target
+        // GL_TEXTURE_2D da Unidade de Textura ativa.
+        glTexImage2D(GL_TEXTURE_2D,
+            0,
+            GL_RGB,
+            width, height,
+            0,
+            nChannels == 4 ? GL_RGBA : GL_RGB, GL_UNSIGNED_BYTE,
+            imageData);
+        // Gera o Mipmap para essa textura
+        glGenerateMipmap(GL_TEXTURE_2D);
+        // Liberta a imagem da memória do CPU
+        stbi_image_free(imageData);
+    }
+    else {
+        std::cout << "Error loading texture!" << std::endl;
+    }
+}
+
 Model::Model(const char* fileName) {
 
     /*std::vector< unsigned int > vertexIndices, uvIndices, normalIndices;
@@ -157,9 +196,8 @@ Model::Model(const char* fileName) {
     }
 
     stbi_set_flip_vertically_on_load(true);
-    texture = (unsigned char*)stbi_load(texturePath.c_str(), &width, &height, &channels, 0);
+    load_texture(texturePath);
     material = new Material(ns, ka, kd, ks);
-
 }
 
 Model::~Model() {
