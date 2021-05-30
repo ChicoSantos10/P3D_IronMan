@@ -4,6 +4,8 @@
 #include <iostream>
 #include <string>
 #include<sstream>
+#define STB_IMAGE_IMPLEMENTATION
+#include "stb_image.h"
 
 #include "Model.h"
 #include <GL/glew.h>
@@ -25,6 +27,7 @@ Model::Model(const char* fileName) {
     std::stringstream stream;
     std::string line = ""; 
     std::string prefix = "";
+    
 
     glm::vec3 position;
     glm::vec2 uv;
@@ -38,7 +41,7 @@ Model::Model(const char* fileName) {
     std::vector<GLint> vertex_uv_indicies;
     std::vector<GLint> vertex_normal_indicies;
 
-    char* materialPath;
+    std::string materialPath = "";
 
     while (std::getline(file, line)) {
 
@@ -50,7 +53,7 @@ Model::Model(const char* fileName) {
         stream >> prefix;
 
         if (prefix == "mtllib") {
-            //stream >> materialPath;
+            stream >> materialPath;
         }
         else if (prefix == "v") {
             stream >> position.x >> position.y >> position.z;
@@ -105,4 +108,61 @@ Model::Model(const char* fileName) {
         std::cout << uvs[i].x << uvs[i].y << std::endl;
         std::cout << normals[i].x << normals[i].y << normals[i].z << std::endl;*/
     }
+
+
+    // Read mtl
+    std::ifstream fileMtl(materialPath);
+    std::string texturePath = "";
+
+    if (!fileMtl.is_open()) {
+        printf("Impossible to open the file !\n"); //TODO:mudar
+        //return nullptr;
+    }
+
+    float ns;
+    glm::vec3 ka;
+    glm::vec3 kd;
+    glm::vec3 ks;
+
+    while (std::getline(fileMtl, line))
+    {
+        // Clears the variable because of the loop
+        stream.clear();
+        // Copies the line content to the stream
+        stream.str(line);
+        // Copies the first value/word to prefix
+        stream >> prefix;
+
+
+        if (prefix == "Ns")
+        {
+            stream >> ns;
+        }
+        else if (prefix == "Ka")
+        {
+            stream >> ka.x >> ka.y >> ka.z;
+        }
+        else if (prefix == "Kd")
+        {
+            stream >> kd.x >> kd.y >> kd.z;
+        }
+        else if (prefix == "Ks")
+        {
+            stream >> ks.x >> ks.y >> ks.z;
+        }
+        else if (prefix == "map_Kd")
+        {
+            stream >> texturePath;
+        }
+    }
+
+    stbi_set_flip_vertically_on_load(true);
+    texture = (unsigned char*)stbi_load(texturePath.c_str(), &width, &height, &channels, 0);
+    material = new Material(ns, ka, kd, ks);
+
+}
+
+Model::~Model() {
+    stbi_image_free(texture);
+    delete material;
 }
