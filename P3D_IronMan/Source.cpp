@@ -170,7 +170,7 @@ int main(void) {
 	bindId = 1;
 	glVertexAttribFormat(uvId, 2, GL_FLOAT, GL_FALSE, 0);
 	glVertexAttribBinding(uvId, bindId);
-	glBindVertexBuffer(bindId, buffers[1], 0, 0);
+	glBindVertexBuffer(bindId, buffers[1], 0, sizeof(GLfloat) * 2);
 	//glVertexAttribPointer(uvId, 2, GL_FLOAT, GL_FALSE, 0, nullptr);
 	glEnableVertexAttribArray(uvId);
 
@@ -178,10 +178,10 @@ int main(void) {
 	glBindBuffer(GL_ARRAY_BUFFER, buffers[2]);
 	glBufferStorage(GL_ARRAY_BUFFER, sizeof(glm::vec3) * mesh.normals.size(), mesh.normals.data(), 0);
 	GLint normalId = glGetProgramResourceLocation(program, GL_PROGRAM_INPUT, "normal");
-	bindId = 1;
+	bindId = 2;
 	glVertexAttribFormat(normalId, 3, GL_FLOAT, GL_FALSE, 0);
 	glVertexAttribBinding(normalId, bindId);
-	glBindVertexBuffer(bindId, buffers[2], 0, 0);
+	glBindVertexBuffer(bindId, buffers[2], 0, sizeof(GLfloat) * 3);
 	//glVertexAttribPointer(normalId, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
 	glEnableVertexAttribArray(normalId);
 
