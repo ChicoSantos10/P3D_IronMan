@@ -156,29 +156,32 @@ int main(void) {
 	glBindBuffer(GL_ARRAY_BUFFER, buffers[0]);
 	glBufferStorage(GL_ARRAY_BUFFER, sizeof(glm::vec3) * mesh.positions.size(), mesh.positions.data(), 0);
 	GLint pos = glGetProgramResourceLocation(program, GL_PROGRAM_INPUT, "vpos");
-	/*glVertexAttribFormat(pos, 3, GL_FLOAT, GL_FALSE, 0);
-	glVertexAttribBinding(pos, 0);
-	glBindVertexBuffer(0, buffers[0], 0, 0);*/
-	glVertexAttribPointer(pos, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
+	GLint bindId = 0;
+	glVertexAttribFormat(pos, 3, GL_FLOAT, GL_FALSE, 0);
+	glVertexAttribBinding(pos, bindId);
+	glBindVertexBuffer(bindId, buffers[0], 0, sizeof(GLfloat) * 3);
+	//glVertexAttribPointer(pos, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
 	glEnableVertexAttribArray(pos);
 
 	// Uv buffer
 	glBindBuffer(GL_ARRAY_BUFFER, buffers[1]);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(mesh.uvs), &mesh.uvs, GL_STATIC_DRAW);
+	glBufferStorage(GL_ARRAY_BUFFER, sizeof(glm::vec2) * mesh.uvs.size(), mesh.uvs.data(), 0);
 	GLint uvId = glGetProgramResourceLocation(program, GL_PROGRAM_INPUT, "texcoord");
+	bindId = 1;
 	glVertexAttribFormat(uvId, 2, GL_FLOAT, GL_FALSE, 0);
-	glVertexAttribBinding(uvId, 1);
-	glBindVertexBuffer(1, buffers[1], 0, 0);
+	glVertexAttribBinding(uvId, bindId);
+	glBindVertexBuffer(bindId, buffers[1], 0, 0);
 	//glVertexAttribPointer(uvId, 2, GL_FLOAT, GL_FALSE, 0, nullptr);
 	glEnableVertexAttribArray(uvId);
 
 	// Normal buffer
 	glBindBuffer(GL_ARRAY_BUFFER, buffers[2]);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(mesh.normals), &mesh.normals, GL_STATIC_DRAW);
+	glBufferStorage(GL_ARRAY_BUFFER, sizeof(glm::vec3) * mesh.normals.size(), mesh.normals.data(), 0);
 	GLint normalId = glGetProgramResourceLocation(program, GL_PROGRAM_INPUT, "normal");
+	bindId = 1;
 	glVertexAttribFormat(normalId, 3, GL_FLOAT, GL_FALSE, 0);
-	glVertexAttribBinding(normalId, 2);
-	glBindVertexBuffer(2, buffers[2], 0, 0);
+	glVertexAttribBinding(normalId, bindId);
+	glBindVertexBuffer(bindId, buffers[2], 0, 0);
 	//glVertexAttribPointer(normalId, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
 	glEnableVertexAttribArray(normalId);
 
