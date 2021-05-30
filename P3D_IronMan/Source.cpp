@@ -74,6 +74,23 @@ double deltaTime;
 double prevTime = 0;
 
 // TODO: Remove them
+GLuint VAOs[1];
+GLuint buffers[3];
+GLuint program;
+
+void GLAPIENTRY
+MessageCallback(GLenum source,
+	GLenum type,
+	GLuint id,
+	GLenum severity,
+	GLsizei length,
+	const GLchar* message,
+	const void* userParam)
+{
+	fprintf(stderr, "GL CALLBACK: %s type = 0x%x, severity = 0x%x, message = %s\n",
+		(type == GL_DEBUG_TYPE_ERROR ? "** GL ERROR **" : ""),
+		type, severity, message);
+}
 
 int main(void) {
 	std::vector<glm::vec3> obj = Load3DModel();
@@ -103,6 +120,10 @@ int main(void) {
 
 	initialize();
 
+	// During init, enable debug output
+	glEnable(GL_DEBUG_OUTPUT);
+	glDebugMessageCallback(MessageCallback, 0);
+
 	// Callbacks
 	glfwSetScrollCallback(window,
 		[](GLFWwindow* window, double xOffset, double yOffset) 
@@ -113,25 +134,61 @@ int main(void) {
 
 	Model mesh("Iron_Man.obj");
 
-	GLuint VAOs[1];
+	ShaderInfo  shaders[] = {
+		{ GL_VERTEX_SHADER,   "Deformation.vert" },
+		{ GL_FRAGMENT_SHADER, "Color.frag" },
+		{ GL_NONE, NULL }
+	};
+
+	program = LoadShaders(shaders);
+	if (!program)
+		exit(EXIT_FAILURE);
+	glUseProgram(program);
+
+	// VAO
 	glGenVertexArrays(1, VAOs);
 	glBindVertexArray(VAOs[0]);
 
-	GLuint buffers[3];
-	glGenBuffers(3, buffers);
+	// VBOs
+	glGenBuffers(1, buffers);
+
+	// Position buffer
 	glBindBuffer(GL_ARRAY_BUFFER, buffers[0]);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(mesh.positions), &mesh.positions, GL_STATIC_DRAW);
+	glBufferStorage(GL_ARRAY_BUFFER, sizeof(glm::vec3) * mesh.positions.size(), mesh.positions.data(), 0);
+	GLint pos = glGetProgramResourceLocation(program, GL_PROGRAM_INPUT, "vpos");
+	/*glVertexAttribFormat(pos, 3, GL_FLOAT, GL_FALSE, 0);
+	glVertexAttribBinding(pos, 0);
+	glBindVertexBuffer(0, buffers[0], 0, 0);*/
+	glVertexAttribPointer(pos, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
+	glEnableVertexAttribArray(pos);
+
+	// Uv buffer
 	glBindBuffer(GL_ARRAY_BUFFER, buffers[1]);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(mesh.uvs), &mesh.uvs, GL_STATIC_DRAW);
+	GLint uvId = glGetProgramResourceLocation(program, GL_PROGRAM_INPUT, "texcoord");
+	glVertexAttribFormat(uvId, 2, GL_FLOAT, GL_FALSE, 0);
+	glVertexAttribBinding(uvId, 1);
+	glBindVertexBuffer(1, buffers[1], 0, 0);
+	//glVertexAttribPointer(uvId, 2, GL_FLOAT, GL_FALSE, 0, nullptr);
+	glEnableVertexAttribArray(uvId);
+
+	// Normal buffer
 	glBindBuffer(GL_ARRAY_BUFFER, buffers[2]);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(mesh.normals), &mesh.normals, GL_STATIC_DRAW);
+	GLint normalId = glGetProgramResourceLocation(program, GL_PROGRAM_INPUT, "normal");
+	glVertexAttribFormat(normalId, 3, GL_FLOAT, GL_FALSE, 0);
+	glVertexAttribBinding(normalId, 2);
+	glBindVertexBuffer(2, buffers[2], 0, 0);
+	//glVertexAttribPointer(normalId, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
+	glEnableVertexAttribArray(normalId);
 
     glm::mat4 translation(1.0f);
 	glm::mat4 rotation(1.0f);
 	glm::mat4 model(1.0f);
+	model = glm::translate(model, glm::vec3(0.0f, -2.0f, 0.0f));
 
 	while (!glfwWindowShouldClose(window)) {
-		
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		//// TODO: Model class 
 		//target += glm::vec3(0.0f, 0.001f, 0.0f);
 		//translation = glm::translate(glm::mat4(1.0f), target);
@@ -149,10 +206,15 @@ int main(void) {
 		// MVP
 		glm::mat4 mvp = mainCamera->GetProjectionMatrix() * mainCamera->GetViewMatrix() * model;
 
+		GLint mvpId = glGetProgramResourceLocation(program, GL_UNIFORM, "MVP");
+		glProgramUniformMatrix4fv(program, mvpId, 1, GL_FALSE, glm::value_ptr(mvp));
+
+		glBindVertexArray(VAOs[0]);
+		glDrawArrays(GL_TRIANGLES, 0, mesh.positions.size());
+
 		// Rotation based on mouse position
 		if (glfwGetWindowAttrib(window, GLFW_HOVERED))
 		{
-			float screenCenter = WIDTH * 0.5f;
 			// Areas where the cursor needs to be to rotate
 			const int threshold = WIDTH * 0.2f;
 			const GLfloat MAX_ROTATION = glm::radians(90.0f) * deltaTime;
@@ -166,7 +228,7 @@ int main(void) {
 		}
 		mainCamera->Update();
 
-		display(obj, mvp);
+		display(mesh.positions, mvp);
 		glfwSwapBuffers(window);
 		glfwPollEvents();
 	}
@@ -176,28 +238,26 @@ int main(void) {
 }
 
 void initialize() {
-	glClearColor(0.25f, 0.6f, 0.15f, 0.0f);
+	glClearColor(0.68f, 0.85f, 0.90f, 0.0f);
 	glEnable(GL_DEPTH_TEST);
-
 	// Enables the multi sample anti aliasing
 	glEnable(GL_MULTISAMPLE);
-	// Descomentar para ativar o Face Culling
 	//glEnable(GL_CULL_FACE);
 }
 
 void display(std::vector<glm::vec3> obj, glm::mat4 mvp) {
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	
 
-	float* vertex_stream = static_cast<float*>(glm::value_ptr(obj.front()));
+	//float* vertex_stream = static_cast<float*>(glm::value_ptr(obj.front()));
 
-	std::vector<glm::vec3> colors{
-		glm::vec3(1.0f, 0.0f, 0.0f), // Red
-		glm::vec3(1.0f, 1.0f, 0.0f), // Yellow
-		glm::vec3(0.0f, 1.0f, 0.0f), // Green
-		glm::vec3(0.0f, 1.0f, 1.0f), // Cyan
-		glm::vec3(0.0f, 0.0f, 1.0f), // Blue
-		glm::vec3(1.0f, 0.0f, 1.0f)  // Magenta
-	};
+	//std::vector<glm::vec3> colors{
+	//	glm::vec3(1.0f, 0.0f, 0.0f), // Red
+	//	glm::vec3(1.0f, 1.0f, 0.0f), // Yellow
+	//	glm::vec3(0.0f, 1.0f, 0.0f), // Green
+	//	glm::vec3(0.0f, 1.0f, 1.0f), // Cyan
+	//	glm::vec3(0.0f, 0.0f, 1.0f), // Blue
+	//	glm::vec3(1.0f, 0.0f, 1.0f)  // Magenta
+	//};
 
 	// Desenha quad em modo imediato
 	//glBegin(GL_QUADS);
@@ -215,6 +275,6 @@ void display(std::vector<glm::vec3> obj, glm::mat4 mvp) {
 	//	glVertex3f(normalized_vertex.x, normalized_vertex.y, normalized_vertex.z);
 	//}
 	//glEnd();
-
-	glDrawArrays(GL_TRIANGLES, 0, obj.size());
 }
+
+

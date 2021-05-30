@@ -95,7 +95,8 @@ Model::Model(const char* fileName) {
             }
         }
     }
-    for (int i = 0; i < tempPositions.size(); i++)
+
+    for (int i = 0; i < vertex_position_indicies.size(); i++)
     {
         positions.push_back(tempPositions[vertex_position_indicies[i] - 1]);
         uvs.push_back(tempUvs[vertex_uv_indicies[i] - 1]);

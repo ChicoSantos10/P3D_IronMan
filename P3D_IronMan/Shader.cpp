@@ -8,6 +8,8 @@
 
 #include "Shader.h"
 
+#define _DEBUG
+
 static const GLchar* ReadShader(const char* filename) {
 	
 	std::ifstream file(filename, std::ifstream::ate | std::ifstream::binary);
