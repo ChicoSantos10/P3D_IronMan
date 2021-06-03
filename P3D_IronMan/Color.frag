@@ -1,10 +1,13 @@
 #version 440 core
 
-layout(location = 0) in vec3 color;
+in vec2 texcoord;
 
-layout (location = 0) out vec4 fColor; // Cor final do fragmento
+layout(location = 1) uniform sampler2D text;
+
+out vec4 fColor; 
 
 void main()
 {
-	fColor = vec4(color, 1.0f);
+	vec4 color = texture(text, texcoord);
+	fColor = color;
 }

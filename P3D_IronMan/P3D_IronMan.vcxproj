@@ -136,25 +136,20 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="Camera.h" />
+    <ClCompile Include="Material.cpp" />
     <ClCompile Include="Model.cpp" />
+    <ClCompile Include="Shader.cpp" />
     <ClCompile Include="Source.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Material.h" />
     <ClInclude Include="Model.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Iron_Man.mtl" />
-  </ItemGroup>
-  <ItemGroup>
-    <Image Include="Iron_Man_D.tga" />
-    <ClCompile Include="Shader.cpp" />
-  </ItemGroup>
-  <ItemGroup>
     <ClInclude Include="Shader.h" />
   </ItemGroup>
   <ItemGroup>
