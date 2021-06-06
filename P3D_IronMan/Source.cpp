@@ -12,66 +12,54 @@
 
 #include <glm/glm.hpp> 
 #include <glm/gtc/matrix_transform.hpp> 
+#include <glm\gtc\matrix_inverse.hpp>
 #include <glm/gtc/type_ptr.hpp> 
 
 #include "Camera.h"
 #include "Shader.h"
 #include "Model.h"
+#include "DirectionalLight.h"
+#include "Spotlight.h"
+#include "AmbientLight.h"
 
-#define WIDTH 800
-#define HEIGHT 600
 #define MSAA_SAMPLES 4
 
 // Functions
 void initialize();
 void display(std::vector<glm::vec3> obj, glm::mat4 mvp);
 
-std::vector<glm::vec3> Load3DModel(void) {
-	// 6 faces * 4 v�rtices por face
-	glm::vec3 point[6 * 4] = {
-		// Frente
-		glm::vec3(-1.0f, -1.0f,  1.0f),
-		glm::vec3(1.0f, -1.0f,  1.0f),
-		glm::vec3(1.0f,  1.0f,  1.0f),
-		glm::vec3(-1.0f,  1.0f,  1.0f),
-		// Tr�s
-		glm::vec3(-1.0f, -1.0f, -1.0f),
-		glm::vec3(-1.0f,  1.0f, -1.0f),
-		glm::vec3(1.0f,  1.0f, -1.0f),
-		glm::vec3(1.0f, -1.0f, -1.0f),
-		// Direita
-		glm::vec3(1.0f, -1.0f,  1.0f),
-		glm::vec3(1.0f, -1.0f, -1.0f),
-		glm::vec3(1.0f,  1.0f, -1.0f),
-		glm::vec3(1.0f,  1.0f,  1.0f),
-		// Esquerda
-		glm::vec3(-1.0f, -1.0f,  1.0f),
-		glm::vec3(-1.0f,  1.0f,  1.0f),
-		glm::vec3(-1.0f,  1.0f, -1.0f),
-		glm::vec3(-1.0f, -1.0f, -1.0f),
-		// Cima
-		glm::vec3(-1.0f,  1.0f,  1.0f),
-		glm::vec3(1.0f,  1.0f,  1.0f),
-		glm::vec3(1.0f,  1.0f, -1.0f),
-		glm::vec3(-1.0f,  1.0f, -1.0f),
-		// Baixo
-		glm::vec3(-1.0f, -1.0f,  1.0f),
-		glm::vec3(-1.0f, -1.0f, -1.0f),
-		glm::vec3(1.0f, -1.0f, -1.0f),
-		glm::vec3(1.0f, -1.0f,  1.0f)
-	};
-
-	std::vector<glm::vec3> ret;
-	for (auto i : point)
-		ret.push_back(i);
-
-	return ret;
-}
-
 // Variables
 Camera *mainCamera;
 double deltaTime;
 double prevTime = 0;
+float width = 800;
+float height = 600;
+
+// Lights
+AmbientLight ambientLight(glm::vec3(1.0f, 1.0f, 1.0f) * 0.1f);
+
+DirectionalLight directionalLight(
+	glm::vec3(0.0f, 0.0f, -1.0f), // direction
+	glm::vec3(1.0f, 1.0f, 1.0f), // ambient
+	glm::vec3(1.0f, 1.0f, 1.0f) * 1.0f, // diffuse
+	glm::vec3(1.0f, 1.0f, 1.0f)); // specular
+
+PositionalLight pointLight(
+	glm::vec3(0.2f, 1.0f, 0.5f), // position
+	1.0f, 0.006f, 0.002f, // kc, kl, kq
+	glm::vec3(1.0f, 1.0f, 1.0f), // ambient
+	glm::vec3(1.0f, 1.0f, 0.1f), //diffuse
+	glm::vec3(1.0f, 1.0f, 1.0f)); // specular
+
+Spotlight spotlight(
+	glm::vec3(0.0f, 0.50f, 2.0f), // position
+	glm::vec3(0.0f, 0.0f, -1.0f), // direction
+	0.02f, 0.001f, 0.0005f, // kc, kl, kq
+	glm::cos(glm::radians(30.0f)), // cutoff
+	60, // exponent
+	glm::vec3(0.50f, .50f, .50f), // ambient
+	glm::vec3(1.0f, 1.0f, 0.1f), // diffuse
+	glm::vec3(1.0f, 1.0f, 1.0f)); // specular
 
 // TODO: Remove them
 GLuint VAOs[1];
@@ -93,13 +81,12 @@ MessageCallback(GLenum source,
 }
 
 int main(void) {
-	std::vector<glm::vec3> obj = Load3DModel();
 
 	GLFWwindow* window;
 
 	// TODO: pass the model position as target
-	glm::vec3 target(0.0f, 0.0f, -1.0f);
-	mainCamera = new Camera(glm::vec3(0.0f, 0.0f, 0.0f), target, float(WIDTH) / float(HEIGHT));
+	glm::vec3 target(0.0f, 0.0f, 0.0f);
+	mainCamera = new Camera(glm::vec3(0.0f, 0.0f, 0.0f), target, float(width) / float(height));
 	
 	if (!glfwInit())
 		return -1;
@@ -107,7 +94,7 @@ int main(void) {
 	// Sets the sample for the multi sample anti aliasing
 	glfwWindowHint(GLFW_SAMPLES, MSAA_SAMPLES);
 
-	window = glfwCreateWindow(WIDTH, HEIGHT, "P3D: Iron Man", NULL, NULL);
+	window = glfwCreateWindow(width, height, "P3D: Iron Man", NULL, NULL);
 
 	if (window == NULL) {
 		glfwTerminate();
@@ -119,6 +106,8 @@ int main(void) {
 	glewInit();
 
 	initialize();
+
+	Texture::SetFlipVertically(true);
 
 	// During init, enable debug output
 	glEnable(GL_DEBUG_OUTPUT);
@@ -132,6 +121,13 @@ int main(void) {
 		}
 	);
 
+	glfwSetWindowSizeCallback(window, [](GLFWwindow* window, int w, int h) 
+		{
+			glViewport(0, 0, w, h);
+			width = w;
+			height = h;
+		});
+
 	Model mesh("Iron_Man.obj");
 
 	ShaderInfo  shaders[] = {
@@ -144,6 +140,28 @@ int main(void) {
 	if (!program)
 		exit(EXIT_FAILURE);
 	glUseProgram(program);
+
+	glfwSetKeyCallback(window,
+		[](GLFWwindow*, int key, int scancode, int action, int mods)
+		{
+			if (key == GLFW_KEY_1 && action == GLFW_PRESS)
+				ambientLight.FlipSwitch(program);
+			if (key == GLFW_KEY_2 && action == GLFW_PRESS)
+				directionalLight.FlipSwitch(program);
+			if (key == GLFW_KEY_3 && action == GLFW_PRESS)
+				pointLight.FlipSwitch(program);
+			if (key == GLFW_KEY_4 && action == GLFW_PRESS)
+				spotlight.FlipSwitch(program);
+
+			// Deformation
+			static bool active = false;
+
+			if (key == GLFW_KEY_5 && action == GLFW_PRESS) {
+				GLint deformationId = glGetProgramResourceLocation(program, GL_UNIFORM, "deformation");
+				glProgramUniform1f(program, deformationId, !active);
+				active = !active;
+			}
+		});
 
 	// VAO
 	glGenVertexArrays(1, VAOs);
@@ -160,7 +178,6 @@ int main(void) {
 	glVertexAttribFormat(pos, 3, GL_FLOAT, GL_FALSE, 0);
 	glVertexAttribBinding(pos, bindId);
 	glBindVertexBuffer(bindId, buffers[0], 0, sizeof(GLfloat) * 3);
-	//glVertexAttribPointer(pos, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
 	glEnableVertexAttribArray(pos);
 
 	// Uv buffer
@@ -171,7 +188,6 @@ int main(void) {
 	glVertexAttribFormat(uvId, 2, GL_FLOAT, GL_FALSE, 0);
 	glVertexAttribBinding(uvId, bindId);
 	glBindVertexBuffer(bindId, buffers[1], 0, sizeof(GLfloat) * 2);
-	//glVertexAttribPointer(uvId, 2, GL_FLOAT, GL_FALSE, 0, nullptr);
 	glEnableVertexAttribArray(uvId);
 
 	// Normal buffer
@@ -182,12 +198,25 @@ int main(void) {
 	glVertexAttribFormat(normalId, 3, GL_FLOAT, GL_FALSE, 0);
 	glVertexAttribBinding(normalId, bindId);
 	glBindVertexBuffer(bindId, buffers[2], 0, sizeof(GLfloat) * 3);
-	//glVertexAttribPointer(normalId, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
 	glEnableVertexAttribArray(normalId);
 
 	// Textures
-	GLint texId = glGetProgramResourceLocation(program, GL_UNIFORM, "text");
+	GLint texId = glGetProgramResourceLocation(program, GL_UNIFORM, "image");
 	glProgramUniform1i(program, texId, 0);
+
+	// Projection
+	GLint projectionId = glGetProgramResourceLocation(program, GL_UNIFORM, "projection");
+	glProgramUniformMatrix4fv(program, projectionId, 1, GL_FALSE, glm::value_ptr(mainCamera->GetProjectionMatrix()));
+
+	Light *lights[] = { &ambientLight, &directionalLight, &pointLight, &spotlight };
+
+	for (auto& i : lights)
+	{
+		i->SetLightProperties(program);
+	}
+
+	// Set material in shader
+	mesh.material->SetShaderMaterial(program);
 
     glm::mat4 translation(1.0f);
 	glm::mat4 rotation(1.0f);
@@ -196,25 +225,50 @@ int main(void) {
 
 	while (!glfwWindowShouldClose(window)) {
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		//// TODO: Model class 
-		//target += glm::vec3(0.0f, 0.001f, 0.0f);
-		//translation = glm::translate(glm::mat4(1.0f), target);
-		//rotation = glm::rotate(glm::mat4(1.0f), ANGLE += 0.01f, glm::normalize(glm::vec3(1.0f, 1.0f, 0.0f)));
-		//glm::mat4 model = translation * rotation;
-		//// Vai efetuando uma rota��o ao objeto (apenas para podermos ver todas as faces desenhadas).
-		//model = glm::rotate(model, ANGLE += 0.001f, glm::normalize(glm::vec3(1.0f, 1.0f, 0.0f)));
-		//model = glm::translate(model, target);
 
 		// Updating delta time
 		double time = glfwGetTime();
 		deltaTime = time - prevTime;
 		prevTime = time;
 
+		//model = glm::rotate(model, (GLfloat)(glm::radians(90.0f) * deltaTime), glm::vec3(0.0f, 1.0f, 0.0f));
+		glm::mat4 vm = mainCamera->GetViewMatrix() * model;
+		glm::mat4 cm = mainCamera->GetViewMatrix() * glm::translate(glm::mat4(1), glm::vec3(0.0f, 0.50f, 2.0f));
+		//std::cout << glm::length(glm::vec3(cm[3].x, cm[3].y, cm[3].z)) << std::endl;
+		//float dist = glm::length(glm::mat3(vm) * glm::vec3(0.0f, 0.50f, 2.0f) - glm::vec3((vm * glm::vec4(glm::vec3(0,-2,0), 1.0))));
+		glm::mat4 viewC = mainCamera->GetViewMatrix();
+		glm::vec3 l = glm::vec3(cm[3]);
+		glm::vec3 c = glm::vec3(viewC[3]);
+		glm::vec3 m = glm::vec3(vm[3]);
+		/*float dist = glm::length(l - m);
+		std::cout << dist << std::endl;*/
+		
 		// MVP
 		glm::mat4 mvp = mainCamera->GetProjectionMatrix() * mainCamera->GetViewMatrix() * model;
-
 		GLint mvpId = glGetProgramResourceLocation(program, GL_UNIFORM, "MVP");
 		glProgramUniformMatrix4fv(program, mvpId, 1, GL_FALSE, glm::value_ptr(mvp));
+
+		// Model
+		GLint modelId = glGetProgramResourceLocation(program, GL_UNIFORM, "model");
+		glProgramUniformMatrix4fv(program, modelId, 1, GL_FALSE, glm::value_ptr(model));
+
+		// View	
+		GLint viewId = glGetProgramResourceLocation(program, GL_UNIFORM, "view");
+		glProgramUniformMatrix4fv(program, viewId, 1, GL_FALSE, glm::value_ptr(mainCamera->GetViewMatrix()));
+		
+		// View Model
+		GLint viewModelId = glGetProgramResourceLocation(program, GL_UNIFORM, "viewModel");
+		glm::mat4 viewModel = mainCamera->GetViewMatrix() * model;
+		glProgramUniformMatrix4fv(program, viewModelId, 1, GL_FALSE, glm::value_ptr(viewModel));
+
+		// Normal Matrix
+		GLint normalId = glGetProgramResourceLocation(program, GL_UNIFORM, "normalMatrix");
+		glm::mat3 normalMatrix = glm::inverseTranspose(glm::mat3(viewModel));
+		glProgramUniformMatrix3fv(program, normalId, 1, GL_FALSE, glm::value_ptr(normalMatrix));
+
+		// Time
+		GLint timeId = glGetProgramResourceLocation(program, GL_UNIFORM, "time");
+		glProgramUniform1f(program, timeId, time);
 
 		glBindVertexArray(VAOs[0]);
 		glDrawArrays(GL_TRIANGLES, 0, mesh.positions.size());
@@ -223,15 +277,15 @@ int main(void) {
 		if (glfwGetWindowAttrib(window, GLFW_HOVERED))
 		{
 			// Areas where the cursor needs to be to rotate
-			const int threshold = WIDTH * 0.2f;
+			const int threshold = width * 0.2f;
 			const GLfloat MAX_ROTATION = glm::radians(90.0f) * deltaTime;
 			double mouseX, mouseY;
 			glfwGetCursorPos(window, &mouseX, &mouseY);
 
 			if (mouseX < threshold)
 				mainCamera->Rotate((threshold - mouseX) / threshold * MAX_ROTATION);
-			else if (mouseX > WIDTH - (double)threshold)
-				mainCamera->Rotate((WIDTH - (double)threshold - mouseX) / threshold * MAX_ROTATION);
+			else if (mouseX > width - (double)threshold)
+				mainCamera->Rotate((width - (double)threshold - mouseX) / threshold * MAX_ROTATION);
 		}
 		mainCamera->Update();
 
@@ -249,39 +303,13 @@ void initialize() {
 	glEnable(GL_DEPTH_TEST);
 	// Enables the multi sample anti aliasing
 	glEnable(GL_MULTISAMPLE);
-	//glEnable(GL_CULL_FACE);
+	glEnable(GL_CULL_FACE); // Por defeito está desativado
+	glCullFace(GL_BACK);
 }
 
 void display(std::vector<glm::vec3> obj, glm::mat4 mvp) {
 	
 
-	//float* vertex_stream = static_cast<float*>(glm::value_ptr(obj.front()));
-
-	//std::vector<glm::vec3> colors{
-	//	glm::vec3(1.0f, 0.0f, 0.0f), // Red
-	//	glm::vec3(1.0f, 1.0f, 0.0f), // Yellow
-	//	glm::vec3(0.0f, 1.0f, 0.0f), // Green
-	//	glm::vec3(0.0f, 1.0f, 1.0f), // Cyan
-	//	glm::vec3(0.0f, 0.0f, 1.0f), // Blue
-	//	glm::vec3(1.0f, 0.0f, 1.0f)  // Magenta
-	//};
-
-	// Desenha quad em modo imediato
-	//glBegin(GL_QUADS);
-	///* obj.size() * (obj.front().length()) � o mesmo que (6*4)*3 */
-	///* 6 faces * 4 v�rtices por face * 3 coordenadas por v�rtice */
-	//for (int nv = 0; nv < 6 * 4 * 3; nv += 3) {
-	//	// Uma cor por face
-	//	glColor3f(colors[nv / (4 * 3)].r, colors[nv / (4 * 3)].g, colors[nv / (4 * 3)].b);
-	//	glm::vec4 vertex = glm::vec4(vertex_stream[nv], vertex_stream[nv + 1], vertex_stream[nv + 2], 1.0f);
-	//	// C�lculo das coordenadas de recorte
-	//	glm::vec4 transformed_vertex = mvp * vertex;
-	//	// Divis�o de Perspetiva
-	//	glm::vec4 normalized_vertex = transformed_vertex / transformed_vertex.w;
-	//	// Desenho do v�rtice
-	//	glVertex3f(normalized_vertex.x, normalized_vertex.y, normalized_vertex.z);
-	//}
-	//glEnd();
 }
 
 

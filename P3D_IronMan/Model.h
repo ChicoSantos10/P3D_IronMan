@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Material.h"
+#include "Texture.h"
 
 class Model {
 	public:
@@ -9,9 +10,8 @@ class Model {
 		std::vector<glm::vec3> positions;
 		std::vector<glm::vec2> uvs;
 		std::vector<glm::vec3> normals;
-		int width, height, channels;
-		unsigned char* texture;
 		Material* material;
+		Texture* texture;
 
 	private:
 		

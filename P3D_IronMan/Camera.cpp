@@ -22,11 +22,7 @@ glm::mat4 Camera::GetViewMatrix() {
 
 void Camera::Zoom(double yOffset) {
 
-	using namespace std;
-	cout << "Zoom: " << zoom_ << endl;
-	cout << "Offset: " << yOffset << endl;
 	zoom_ += fabs(zoom_) * 0.1f * -(float)yOffset;
-	cout << "New zoom: " << zoom_ << endl;
 
 	UpdateViewMatrix();
 }
@@ -41,11 +37,16 @@ void Camera::Update() {
 
 void Camera::UpdateViewMatrix() {
 	// Position of the camera changed so update view matrix
-	glm::vec3 posAfterZoom = pos_ + glm::vec3(0, 0, zoom_); // TODO: Make it so zoom moves forward based on the camera rotation
-	glm::vec3 direction = *target_ - posAfterZoom;
-	glm::normalize(direction);
-	view_ = glm::lookAt(posAfterZoom, direction + posAfterZoom, glm::vec3(0.0, 1.0, 0.0));
-	view_ = glm::rotate(view_, rotation, glm::vec3(0.0f, 1.0f, 0.0f));
+	/*glm::vec3 posAfterZoom = pos_ + glm::vec3(0, 0, zoom_);
+	
+	view_ = glm::lookAt(posAfterZoom, *target_, glm::vec3(0.0, 1.0, 0.0));*/
+
+	glm::vec3 posAfterZoom = zoom_ * glm::vec3(glm::sin(rotation), 0, glm::cos(rotation));
+
+	view_ = glm::lookAt(posAfterZoom, *target_, glm::vec3(0.0, 1.0, 0.0));
+
+	//gluLookAt(zoom_ * glm::sin(rotation), 0, zoom_ * glm::cos(rotation), 0, 0, 0, 0, 1, 0);
+	//view_ = glm::rotate(view_, rotation, glm::vec3(0.0f, 1.0f, 0.0f));
 	
 	/*using namespace std;
 	cout << posAfterZoom.x << " " << posAfterZoom.y << " " << posAfterZoom.z << endl;

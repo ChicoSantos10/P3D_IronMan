@@ -140,17 +140,31 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="AmbientLight.cpp" />
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="Camera.h" />
+    <ClCompile Include="DirectionalLight.cpp" />
+    <ClCompile Include="FileReader.cpp" />
+    <ClCompile Include="Light.cpp" />
     <ClCompile Include="Material.cpp" />
     <ClCompile Include="Model.cpp" />
+    <ClCompile Include="PositionalLight.cpp" />
     <ClCompile Include="Shader.cpp" />
     <ClCompile Include="Source.cpp" />
+    <ClCompile Include="Spotlight.cpp" />
+    <ClCompile Include="Texture.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="AmbientLight.h" />
+    <ClInclude Include="DirectionalLight.h" />
+    <ClInclude Include="FileReader.h" />
+    <ClInclude Include="Light.h" />
     <ClInclude Include="Material.h" />
     <ClInclude Include="Model.h" />
+    <ClInclude Include="PositionalLight.h" />
     <ClInclude Include="Shader.h" />
+    <ClInclude Include="Spotlight.h" />
+    <ClInclude Include="Texture.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Color.frag" />
