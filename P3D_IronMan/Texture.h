@@ -1,16 +1,20 @@
 #pragma once
 #include <string>
 #include <gl/glew.h>
+#include <vector>
 
 class Texture {
 public: 
 	Texture(std::string texture);
-	~Texture();
+	Texture(std::vector<std::string> textures);
+	//~Texture();
 	static void SetFlipVertically(bool flip);
+	GLuint id;
+	static GLuint count;
 	
 private:
-	GLuint name;
-	int width, height, channels;
 	bool LoadTexture(std::string texture);
-	static GLuint count;
+	bool LoadTexture(std::vector<std::string> textures);
+	GLuint name_;
+	int width_, height_, channels_;
 };

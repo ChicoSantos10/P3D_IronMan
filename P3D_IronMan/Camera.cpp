@@ -3,11 +3,12 @@
 
 GLfloat rotation = 0;
 
-Camera::Camera(glm::vec3 position, glm::vec3 &target, float aspectRatio) : 
+Camera::Camera(glm::vec3 position, glm::vec3 &target, glm::vec3 offset, float aspectRatio) : 
 	projection_{ glm::perspective(glm::radians(45.0f), aspectRatio, 0.1f, 100.0f) },
 	zoom_{ 10.0f },
 	pos_{ position },
-	target_{ &target } 
+	target_{ &target },
+	offset_ {offset}
 {
 	UpdateViewMatrix();
 }
@@ -37,16 +38,10 @@ void Camera::Update() {
 
 void Camera::UpdateViewMatrix() {
 	// Position of the camera changed so update view matrix
-	/*glm::vec3 posAfterZoom = pos_ + glm::vec3(0, 0, zoom_);
+	glm::vec3 posAfterZoom = pos_ + glm::vec3(0, 0, zoom_);
 	
-	view_ = glm::lookAt(posAfterZoom, *target_, glm::vec3(0.0, 1.0, 0.0));*/
-
-	glm::vec3 posAfterZoom = zoom_ * glm::vec3(glm::sin(rotation), 0, glm::cos(rotation));
-
-	view_ = glm::lookAt(posAfterZoom, *target_, glm::vec3(0.0, 1.0, 0.0));
-
-	//gluLookAt(zoom_ * glm::sin(rotation), 0, zoom_ * glm::cos(rotation), 0, 0, 0, 0, 1, 0);
-	//view_ = glm::rotate(view_, rotation, glm::vec3(0.0f, 1.0f, 0.0f));
+	view_ = glm::lookAt(posAfterZoom, *target_ + offset_, glm::vec3(0.0, 1.0, 0.0));
+	view_ = glm::rotate(view_, rotation, glm::vec3(0.0f, 1.0f, 0.0f));
 	
 	/*using namespace std;
 	cout << posAfterZoom.x << " " << posAfterZoom.y << " " << posAfterZoom.z << endl;

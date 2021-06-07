@@ -37,7 +37,6 @@ void main()
     positionView = (viewModel * vec4(vpos, 1.0)).xyz;
     fragPos = (model * vec4(vpos, 1.0)).xyz;
     normalView = normalize(normalMatrix * vnormal);
-    //normalView = vnormal;
 
 	gl_Position = projection * position;
 }

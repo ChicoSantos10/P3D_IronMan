@@ -150,6 +150,7 @@
     <ClCompile Include="Model.cpp" />
     <ClCompile Include="PositionalLight.cpp" />
     <ClCompile Include="Shader.cpp" />
+    <ClCompile Include="Skybox.cpp" />
     <ClCompile Include="Source.cpp" />
     <ClCompile Include="Spotlight.cpp" />
     <ClCompile Include="Texture.cpp" />
@@ -163,12 +164,15 @@
     <ClInclude Include="Model.h" />
     <ClInclude Include="PositionalLight.h" />
     <ClInclude Include="Shader.h" />
+    <ClInclude Include="Skybox.h" />
     <ClInclude Include="Spotlight.h" />
     <ClInclude Include="Texture.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Color.frag" />
-    <None Include="Deformation.vert" />
+    <None Include="Shaders\Color.frag" />
+    <None Include="Shaders\Deformation.vert" />
+    <None Include="Shaders\Skybox.frag" />
+    <None Include="Shaders\Skybox.vert" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

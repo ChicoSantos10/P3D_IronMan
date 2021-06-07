@@ -63,6 +63,9 @@
     <ClCompile Include="AmbientLight.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Skybox.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Shader.h">
@@ -95,13 +98,22 @@
     <ClInclude Include="AmbientLight.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Skybox.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Deformation.vert">
+    <None Include="Shaders\Deformation.vert">
       <Filter>Shaders\Vertex</Filter>
     </None>
-    <None Include="Color.frag">
+    <None Include="Shaders\Color.frag">
       <Filter>Shaders\Fragment</Filter>
+    </None>
+    <None Include="Shaders\Skybox.frag">
+      <Filter>Shaders\Fragment</Filter>
+    </None>
+    <None Include="Shaders\Skybox.vert">
+      <Filter>Shaders\Vertex</Filter>
     </None>
   </ItemGroup>
 </Project>

@@ -110,7 +110,7 @@ vec4 computeDirectionalLight(DirectionalLight light) {
 	
 	vec4 specular = pow(RdotV, material.shininess) * vec4(light.specular * material.specular, 1.0);
 
-	return (ambient + diffuse + specular);
+	return ambient + diffuse + specular;
 }
 
 vec4 computePointLight(PointLight light) {
@@ -162,32 +162,5 @@ vec4 computeSpotLight(SpotLight light) {
 		attenuation = pow(DdotL, light.exponent) / (light.constant + light.linear * dist + light.quadratic * (dist * dist));
 	}
 	
-	return (attenuation * (ambient + diffuse + specular));
-}
-
-vec4 computeSpotLightDiff(SpotLight light) {
-	
-	vec4 ambient = vec4(material.ambient * light.ambient, 1.0);
-
-	vec3 D = normalize(light.position - fragPos);
-	vec3 N = normalize(normalView);
-	vec3 L = normalize(light.direction);
-	float NdotL = max(dot(N, D), 0.0);
-	float theta = max(dot(-D, L), 0.0);
-	vec4 diffuse = vec4(material.diffuse * light.diffuse, 1.0) * NdotL;
-
-	vec3 V = normalize(-fragPos);
-
-	vec3 R = reflect(-D, N);
-	float RdotV = max(dot(R, V), 0.0);
-	
-	vec4 specular = pow(RdotV, material.shininess) * vec4(light.specular * material.specular, 1.0);
-	
-	float dist = length(light.position - fragPos);
-	float attenuation = 0;
-	if (theta > light.cutoff) {
-		attenuation = pow(theta, light.exponent) / (light.constant + light.linear * dist + light.quadratic * (dist * dist));
-	}
-		
 	return (attenuation * (ambient + diffuse + specular));
 }
