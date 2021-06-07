@@ -61,9 +61,6 @@ Spotlight spotlight(
 	glm::vec3(0.3f, 1.0f, 0.3f), // diffuse
 	glm::vec3(1.0f, 1.0f, 1.0f)); // specular
 
-// TODO: Remove them
-GLuint VAOs[1];
-GLuint buffers[3];
 GLuint lightShader;
 GLuint skyboxShader;
 
